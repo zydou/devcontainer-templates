@@ -3,6 +3,9 @@ on:
   push:
     branches:
       - main
+    paths:
+      - src/**
+      - test/**
   pull_request:
   workflow_dispatch:
 
@@ -20,7 +23,6 @@ jobs:
             hugo: ./**/hugo/**
 
   test:
-    needs: [detect-changes]
     runs-on: ubuntu-latest
     continue-on-error: true
     strategy:
