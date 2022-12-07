@@ -1,6 +1,8 @@
 {
     "name": "Hugo",
     "image": "debian:${templateOption:imageVariant}-slim",
+    // "runArgs": ["--name=hugo-devcontainer"], // Docker CLI args
+
     // 👇 Features to add to the Dev Container. More info: https://containers.dev/implementors/features.
     "features": {
         "ghcr.io/zydou/devcontainer-features/set-user:1": {
