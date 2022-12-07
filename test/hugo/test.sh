@@ -4,7 +4,7 @@ source test-utils.sh
 
 # Template specific tests
 check "distro" lsb_release -c
-check "greeting" [ $(cat /usr/local/etc/greeting.txt | grep hey) ]
+check "hugo" [ $(hugo version | grep hugo) ]
 
 # Report result
 reportResults

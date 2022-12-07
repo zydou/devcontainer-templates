@@ -1,6 +1,10 @@
 name: "CI - Test Templates"
 on:
+  push:
+    branches:
+      - main
   pull_request:
+  workflow_dispatch:
 
 jobs:
   detect-changes:
@@ -8,12 +12,12 @@ jobs:
     outputs:
       templates: ${{ steps.filter.outputs.changes }}
     steps:
+      - uses: actions/checkout@main
       - uses: dorny/paths-filter@v2
         id: filter
         with:
           filters: |
-            color: ./**/color/**
-            hello: ./**/hello/**
+            hugo: ./**/hugo/**
 
   test:
     needs: [detect-changes]
@@ -23,7 +27,7 @@ jobs:
       matrix:
         templates: ${{ fromJSON(needs.detect-changes.outputs.templates) }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@main
 
       - name: Smoke test for '${{ matrix.templates }}'
         id: smoke_test

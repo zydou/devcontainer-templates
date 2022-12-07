@@ -1,0 +1,45 @@
+{
+    "name": "Hugo",
+    "image": "debian:${templateOption:imageVariant}-slim",
+    // 👇 Features to add to the Dev Container. More info: https://containers.dev/implementors/features.
+    "features": {
+        "ghcr.io/zydou/devcontainer-features/set-user:1": {
+            "username": "hugo"
+        },
+        "ghcr.io/devcontainers/features/git:1": {
+            "version": "os-provided",
+            "ppa": true
+        },
+        "ghcr.io/devcontainers/features/hugo:1": {
+            "version": "${templateOption:hugoVersion}",
+            "extended": "${templateOption:extended}"
+        }
+    },
+    "overrideFeatureInstallOrder": [
+        "ghcr.io/zydou/devcontainer-features/set-user"
+    ],
+    // "postCreateCommand": "echo '${templateOption:favorite}' > /tmp/color.txt",
+    // 👇 Configure tool-specific properties.
+    "customizations": {
+        // Configure properties specific to VS Code.
+        "vscode": {
+            // Set *default* container specific settings.json values on container create.
+            "settings": {
+                "html.format.templating": true,
+                "terminal.integrated.defaultProfile.linux": "bash"
+            },
+            // Add the IDs of extensions you want installed when the container is created.
+            "extensions": [
+                "tamasfe.even-better-toml",
+                "davidanson.vscode-markdownlint",
+                "yzhang.markdown-all-in-one"
+            ]
+        }
+    },
+    // Use 'forwardPorts' to make a list of ports inside the container available locally.
+    "forwardPorts": [
+        1313
+    ],
+    // 👇 Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+    "remoteUser": "hugo"
+}
