@@ -20,7 +20,7 @@
     "overrideFeatureInstallOrder": [
         "ghcr.io/zydou/devcontainer-features/set-user"
     ],
-    // "postCreateCommand": "echo '${templateOption:favorite}' > /tmp/color.txt",
+
     // 👇 Configure tool-specific properties.
     "customizations": {
         // Configure properties specific to VS Code.
