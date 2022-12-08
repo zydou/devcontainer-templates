@@ -63,3 +63,19 @@ jobs:
           docker tag ${{ matrix.templates }} ghcr.io/${{ github.repository_owner }}/devcontainer-images:${{ matrix.templates }}
           docker push ${{ github.repository_owner }}/devcontainer-images:${{ matrix.templates }}
           docker push ghcr.io/${{ github.repository_owner }}/devcontainer-images:${{ matrix.templates }}
+
+      - name: Docker Hub Description
+        uses: peter-evans/dockerhub-description@v2
+        with:
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.PAT }}
+          repository: ${{ github.repository_owner }}/devcontainer-images
+          short-description: "Dev Container images built with templates"
+          readme-filepath: README.md
+      - name: Delete untagged
+        uses: dylanratcliffe/delete-untagged-containers@main
+        with:
+          package_name: devcontainer-images
+          token: ${{ secrets.PAT }}
+          user: ${{ github.repository_owner }}
+
