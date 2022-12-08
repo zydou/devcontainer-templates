@@ -23,9 +23,11 @@ jobs:
             hugo: ./**/hugo/**
 
   test:
+    needs: detect-changes
     runs-on: ubuntu-latest
     continue-on-error: true
     strategy:
+      fail-fast: false
       matrix:
         templates: ${{ fromJSON(needs.detect-changes.outputs.templates) }}
     steps:
@@ -36,3 +38,28 @@ jobs:
         uses: ./.github/actions/smoke-test
         with:
           template: "${{ matrix.templates }}"
+
+      - name: Login to GitHub Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@master
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Login to DockerHub
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@master
+        with:
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.PAT }}
+
+      - name: push image
+        if: github.event_name != 'pull_request'
+        id: push_image
+        shell: bash
+        run: |
+          docker tag ${{ matrix.templates }} ${{ github.repository_owner }}/devcontainer-images:${{ matrix.templates }}
+          docker tag ${{ matrix.templates }} ghcr.io/${{ github.repository_owner }}/devcontainer-images:${{ matrix.templates }}
+          docker push ${{ github.repository_owner }}/devcontainer-images:${{ matrix.templates }}
+          docker push ghcr.io/${{ github.repository_owner }}/devcontainer-images:${{ matrix.templates }}
