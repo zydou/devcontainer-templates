@@ -21,6 +21,7 @@ jobs:
         with:
           filters: |
             hugo: ./**/hugo/**
+            latex: ./**/latex/**
 
   test:
     needs: detect-changes

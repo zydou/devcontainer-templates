@@ -1,0 +1,44 @@
+{
+    "id": "latex",
+    "version": "1.0.0",
+    "name": "latex",
+    "description": "A Template to write TeX using texlive",
+    "documentationURL": "https://github.com/zydou/devcontainer-templates/tree/main/src/latex",
+    "licenseURL": "https://github.com/zydou/devcontainer-templates/blob/main/LICENSE",
+    "publisher": "zydou",
+    "keywords": ["tex", "latex", "texlive"],
+    "options": {
+        "version": {
+            "type": "string",
+            "description": "texlive version",
+            "proposals": [
+                "latest",
+                "TL2021",
+                "TL2020",
+                "TL2019"
+            ],
+            "default": "TL2021"
+        },
+        "scheme": {
+            "type": "string",
+            "description": "historic[-doc][-src] schemes only work with TL{year} versions",
+            "proposals": [
+                "minimal",
+                "basic",
+                "small",
+                "medium",
+                "full-doc",
+                "full-src",
+                "full-doc-src",
+                "historic",
+                "historic-doc",
+                "historic-src",
+                "historic-doc-src"
+            ],
+            "default": "historic-doc"
+        }
+    },
+    "platforms": [
+        "Any"
+    ]
+}
