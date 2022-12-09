@@ -16,14 +16,7 @@ jobs:
       fail-fast: false
       matrix:
         imageVariant:
-          [
-            "stretch",
-            "buster",
-            "bullseye",
-            "bookworm",
-            "stable",
-            "testing",
-          ]
+          ["stretch", "buster", "bullseye", "bookworm", "stable", "testing"]
         hugoVersion: ["latest", "0.108.0", "0.107.0", "0.106.0", "0.105.0"]
         extended: [true, false]
     name: Build ${{ matrix.imageVariant }}-${{ matrix.hugoVersion }} (Extended:${{ matrix.extended }})

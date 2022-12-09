@@ -1,58 +1,58 @@
 {
-    "name": "latex",
-    // See image:tags definition at https://hub.docker.com/r/texlive/texlive
-    "image": "texlive/texlive:${templateOption:version}-${templateOption:scheme}",
-    // "runArgs": ["--name=latex-devcontainer"], // Docker CLI args
-    // 👇 Features to add to the Dev Container. More info: https://containers.dev/implementors/features.
-    "features": {
-        "ghcr.io/zydou/devcontainer-features/set-user:1": {
-            "username": "latex"
+  "name": "latex",
+  // See image:tags definition at https://hub.docker.com/r/texlive/texlive
+  "image": "texlive/texlive:${templateOption:version}-${templateOption:scheme}",
+  // "runArgs": ["--name=latex-devcontainer"], // Docker CLI args
+  // 👇 Features to add to the Dev Container. More info: https://containers.dev/implementors/features.
+  "features": {
+    "ghcr.io/zydou/devcontainer-features/set-user:1": {
+      "username": "latex"
+    }
+  },
+  // 👇 Configure tool-specific properties.
+  "customizations": {
+    // Configure properties specific to VS Code.
+    "vscode": {
+      // Set *default* container specific settings.json values on container create.
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "editor.quickSuggestions": {
+          "other": true,
+          "comments": true,
+          "strings": true
+        },
+        "editor.suggest.snippetsPreventQuickSuggestions": false,
+        "dictCompletion.externalUserDictFiles": [
+          "${containerWorkspaceFolder}/.vscode/workspace-words.txt"
+        ],
+        "cSpell.customDictionaries": {
+          "workspace-words": {
+            "name": "workspace-words",
+            "path": "${workspaceRoot}/.vscode/workspace-words.txt",
+            "addWords": true,
+            "scope": "workspace"
+          }
+        },
+        "latex-workshop.view.pdf.viewer": "tab",
+        "[latex]": {
+          "editor.defaultFormatter": "James-Yu.latex-workshop"
+        },
+        "[bibtex]": {
+          "editor.defaultFormatter": "James-Yu.latex-workshop"
         }
-    },
-    // 👇 Configure tool-specific properties.
-    "customizations": {
-        // Configure properties specific to VS Code.
-        "vscode": {
-            // Set *default* container specific settings.json values on container create.
-            "settings": {
-                "terminal.integrated.defaultProfile.linux": "bash",
-                "editor.quickSuggestions": {
-                    "other": true,
-                    "comments": true,
-                    "strings": true
-                },
-                "editor.suggest.snippetsPreventQuickSuggestions": false,
-                "dictCompletion.externalUserDictFiles": [
-                    "${containerWorkspaceFolder}/.vscode/workspace-words.txt"
-                ],
-                "cSpell.customDictionaries": {
-                    "workspace-words": {
-                        "name": "workspace-words",
-                        "path": "${workspaceRoot}/.vscode/workspace-words.txt",
-                        "addWords": true,
-                        "scope": "workspace"
-                    }
-                },
-                "latex-workshop.view.pdf.viewer": "tab",
-                "[latex]": {
-                    "editor.defaultFormatter": "James-Yu.latex-workshop"
-                },
-                "[bibtex]": {
-                    "editor.defaultFormatter": "James-Yu.latex-workshop"
-                }
-            },
-            // Add the IDs of extensions you want installed when the container is created.
-            "extensions": [
-                "james-yu.latex-workshop",
-                "JeffersonQin.latex-snippets-jeff",
-                "yzhang.dictionary-completion",
-                "streetsidesoftware.code-spell-checker"
-            ]
-        }
-    },
-    "remoteEnv": {
-        "PDFVIEWER": "code"
-    },
-    // 👇 Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-    "remoteUser": "latex"
+      },
+      // Add the IDs of extensions you want installed when the container is created.
+      "extensions": [
+        "james-yu.latex-workshop",
+        "JeffersonQin.latex-snippets-jeff",
+        "yzhang.dictionary-completion",
+        "streetsidesoftware.code-spell-checker"
+      ]
+    }
+  },
+  "remoteEnv": {
+    "PDFVIEWER": "code"
+  },
+  // 👇 Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+  "remoteUser": "latex"
 }
