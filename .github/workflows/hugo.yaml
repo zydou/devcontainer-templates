@@ -17,7 +17,6 @@ jobs:
       matrix:
         imageVariant:
           [
-            "jessie",
             "stretch",
             "buster",
             "bullseye",
@@ -38,10 +37,10 @@ jobs:
           cp -v .github/actions/utils/* /tmp/${{ env.NAME }}/
           cd /tmp/${{ env.NAME }}
           python generate-template.py ${{ matrix.imageVariant }} ${{ matrix.hugoVersion }} ${{ matrix.extended }}
-          echo "\nContent of devcontainer-template.json\n"
+          echo "Content of devcontainer-template.json"
           cat devcontainer-template.json
           bash apply-template.sh
-          echo "\nContent of devcontainer.json\n"
+          echo "Content of devcontainer.json"
           cat .devcontainer/devcontainer.json
 
       - name: Login to GitHub Container Registry
