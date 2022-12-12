@@ -1,0 +1,84 @@
+name: "Build python versions"
+env:
+  NAME: python
+on:
+  push:
+    paths:
+      - src/python/**
+      - .github/workflows/python.yaml
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+    strategy:
+      fail-fast: false
+      matrix:
+        imageVariant:
+          ["stretch", "buster", "bullseye", "bookworm"]
+        pythonVersion: ["3.11", "3.10", "3.9", "3.8", "3.7", "3.6"]
+    name: Build ${{ matrix.imageVariant }}-${{ matrix.pythonVersion }}
+    steps:
+      - uses: actions/checkout@main
+      - name: Generate devcontainer-template.json
+        shell: bash
+        run: |
+          cp -v -r src/${{ env.NAME }} /tmp/
+          cp -v .github/actions/utils/* /tmp/${{ env.NAME }}/
+          cd /tmp/${{ env.NAME }}
+          python generate-template.py ${{ matrix.imageVariant }} ${{ matrix.pythonVersion }}
+          echo "Content of devcontainer-template.json"
+          cat devcontainer-template.json
+          bash apply-template.sh
+          echo "Content of devcontainer.json"
+          cat .devcontainer/devcontainer.json
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@master
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Login to DockerHub
+        uses: docker/login-action@master
+        with:
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.PAT }}
+
+      - name: Build and push
+        env:
+          DOCKER_BUILDKIT: 1
+        run: |
+          npm install -g @devcontainers/cli
+          cd /tmp/${{ env.NAME }}
+          devcontainer build --image-name ${{ env.NAME }} --workspace-folder .
+          docker tag ${{ env.NAME }} ${{ github.repository_owner }}/devcontainer-images:${{ env.NAME }}-${{ matrix.imageVariant }}-${{ matrix.pythonVersion }}
+          docker tag ${{ env.NAME }} ghcr.io/${{ github.repository_owner }}/devcontainer-images:${{ env.NAME }}-${{ matrix.imageVariant }}-${{ matrix.pythonVersion }}
+          docker tag ${{ env.NAME }} ${{ github.repository_owner }}/devcontainer-${{ env.NAME }}:${{ matrix.imageVariant }}-${{ matrix.pythonVersion }}
+          docker tag ${{ env.NAME }} ghcr.io/${{ github.repository_owner }}/devcontainer-${{ env.NAME }}:${{ matrix.imageVariant }}-${{ matrix.pythonVersion }}
+          docker push --all-tags ${{ github.repository_owner }}/devcontainer-images
+          docker push --all-tags ghcr.io/${{ github.repository_owner }}/devcontainer-images
+          docker push --all-tags ${{ github.repository_owner }}/devcontainer-${{ env.NAME }}
+          docker push --all-tags ghcr.io/${{ github.repository_owner }}/devcontainer-${{ env.NAME }}
+
+  finishing:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@main
+      - name: Delete untagged
+        uses: dylanratcliffe/delete-untagged-containers@main
+        with:
+          package_name: devcontainer-images
+          token: ${{ secrets.PAT }}
+          user: ${{ github.repository_owner }}
+      - name: Docker Hub Description
+        uses: peter-evans/dockerhub-description@v2
+        with:
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.PAT }}
+          repository: ${{ github.repository_owner }}/devcontainer-${{ env.NAME }}
+          short-description: "Dev Container python built with templates"
+          readme-filepath: src/${{ env.NAME }}/README.md

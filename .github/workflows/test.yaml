@@ -22,6 +22,7 @@ jobs:
           filters: |
             hugo: ./**/hugo/**
             latex: ./**/latex/**
+            python: ./**/python/**
 
   test:
     needs: detect-changes
