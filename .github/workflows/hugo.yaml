@@ -49,8 +49,8 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.PAT }}
 
-      - name: Build and push extended
-        if: ${{ matrix.extended }}
+      - name: Build and push
+        if: ${{ matrix.extended == false }}
         env:
           DOCKER_BUILDKIT: 1
         run: |
@@ -66,8 +66,8 @@ jobs:
           docker push --all-tags ${{ github.repository_owner }}/devcontainer-${{ env.NAME }}
           docker push --all-tags ghcr.io/${{ github.repository_owner }}/devcontainer-${{ env.NAME }}
 
-      - name: Build and push
-        if: ${{ matrix.extended == false }}
+      - name: Build and push extended
+        if: ${{ matrix.extended }}
         env:
           DOCKER_BUILDKIT: 1
         run: |
