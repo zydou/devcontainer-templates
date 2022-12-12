@@ -1,7 +1,8 @@
 {
   "name": "latex",
-  // See image:tags definition at https://hub.docker.com/r/texlive/texlive
+  // "image": "zydou/devcontainer-latex:TL2021-historic-doc"
   "image": "texlive/texlive:${templateOption:version}-${templateOption:scheme}",
+  // See image:tags definition at https://hub.docker.com/r/texlive/texlive
   // "runArgs": ["--name=latex-devcontainer"], // Docker CLI args
   // 👇 Features to add to the Dev Container. More info: https://containers.dev/implementors/features.
   "features": {

@@ -1,5 +1,6 @@
 {
   "name": "Hugo",
+  // "image": "zydou/devcontainer-hugo:bullseye-0.108.0-extened"
   "image": "debian:${templateOption:imageVariant}-slim",
   // "runArgs": ["--name=hugo-devcontainer"], // Docker CLI args
 
