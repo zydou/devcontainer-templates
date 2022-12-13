@@ -1,6 +1,6 @@
 {
   "id": "python",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "name": "Python Environment",
   "description": "A Template of Python development environment",
   "documentationURL": "https://github.com/zydou/devcontainer-templates/tree/main/src/python",
@@ -38,7 +38,7 @@
         "black yapf==0.32.0",
         "none"
       ],
-      "default": "pre-commit flake8"
+      "default": "pre-commit flake8 black isort"
     },
     "pip_pkgs": {
       "type": "string",

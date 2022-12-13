@@ -28,24 +28,19 @@
         "python.linting.pylintEnabled": false,
         "python.linting.flake8Enabled": true,
         "python.linting.flake8Path": "/usr/local/py-utils/bin/flake8",
-        "python.formatting.provider": "none",
-        "black-formatter.importStrategy": "useBundled",
+        "python.formatting.provider": "black",
+        "python.formatting.blackPath": "/usr/local/py-utils/bin/black",
         "[python]": {
-          "editor.defaultFormatter": "ms-python.black-formatter",
           "editor.formatOnSave": false,
           "editor.codeActionsOnSave": {
             "source.organizeImports": false
           }
-        },
-        "isort.args": ["--profile", "black"]
+        }
       },
       // Add the IDs of extensions you want installed when the container is created.
       "extensions": [
         "ms-python.python",
-        "ms-python.black-formatter",
-        "ms-python.isort",
         "njpwerner.autodocstring",
-        "KevinRose.vsc-python-indent",
         "njqdev.vscode-python-typehint",
         "littlefoxteam.vscode-python-test-adapter"
       ]
