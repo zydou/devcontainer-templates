@@ -9,7 +9,7 @@ A Template of Python development environment
 |-----|-----|-----|-----|
 | imageVariant | Debian version (use bullseye on local arm64/Apple Silicon): | string | bullseye |
 | pythonVersion | python version | string | 3.10 |
-| pipx_utils | Pipx tools to install.(space-delimited string) | string | pre-commit flake8 |
+| pipx_utils | Pipx tools to install.(space-delimited string) | string | pre-commit flake8 black isort |
 | pip_pkgs | Pip packages to install.(space-delimited string) | string | ipdb pytest |
 
 
