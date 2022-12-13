@@ -10,6 +10,10 @@
       "configureZshAsDefaultShell": true,
       "upgradePackages": false,
       "username": "vscode"
+    },
+    "ghcr.io/zydou/devcontainer-features/python-pkgs:1": {
+      "pipx_utils": "${templateOption:pipx_utils}",
+      "pip_pkgs": "${templateOption:pip_pkgs}"
     }
   },
   // 👇 Configure tool-specific properties.
@@ -21,22 +25,25 @@
         "terminal.integrated.defaultProfile.linux": "zsh",
         "python.defaultInterpreterPath": "/usr/local/bin/python",
         "python.linting.enabled": true,
-        "python.linting.pylintEnabled": true,
+        "python.linting.pylintEnabled": false,
+        "python.linting.flake8Enabled": true,
+        "python.linting.flake8Path": "/usr/local/py-utils/bin/flake8",
         "python.formatting.provider": "none",
+        "python.formatting.blackPath": "/usr/local/py-utils/bin/black",
         "[python]": {
           "editor.defaultFormatter": "ms-python.black-formatter",
           "editor.formatOnSave": false,
           "editor.codeActionsOnSave": {
             "source.organizeImports": false
-          },
+          }
         },
         "isort.args": ["--profile", "black"]
       },
       // Add the IDs of extensions you want installed when the container is created.
       "extensions": [
         "ms-python.python",
-        "ms-python.vscode-pylance",
         "ms-python.black-formatter",
+        "ms-python.isort",
         "njpwerner.autodocstring",
         "KevinRose.vsc-python-indent",
         "njqdev.vscode-python-typehint",
