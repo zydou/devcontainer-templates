@@ -6,7 +6,7 @@
   // "runArgs": ["--name=latex-devcontainer"], // Docker CLI args
   // 👇 Features to add to the Dev Container. More info: https://containers.dev/implementors/features.
   "features": {
-    "ghcr.io/zydou/devcontainer-features/set-user:1": {
+    "ghcr.io/zydou/devcontainer-features/set-user:latest": {
       "username": "latex"
     }
   },

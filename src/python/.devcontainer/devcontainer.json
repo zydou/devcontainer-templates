@@ -5,13 +5,13 @@
   // "runArgs": ["--name=python-devcontainer"], // Docker CLI args
   // 👇 Features to add to the Dev Container. More info: https://containers.dev/implementors/features.
   "features": {
-    "ghcr.io/devcontainers/features/common-utils:1": {
+    "ghcr.io/devcontainers/features/common-utils:latest": {
       "installZsh": true,
       "configureZshAsDefaultShell": true,
       "upgradePackages": false,
       "username": "vscode"
     },
-    "ghcr.io/zydou/devcontainer-features/python-pkgs:1": {
+    "ghcr.io/zydou/devcontainer-features/python-pkgs:latest": {
       "pipx_utils": "${templateOption:pipx_utils}",
       "pip_pkgs": "${templateOption:pip_pkgs}"
     }
