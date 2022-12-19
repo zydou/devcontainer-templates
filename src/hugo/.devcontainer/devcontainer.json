@@ -1,7 +1,7 @@
 {
   "name": "Hugo",
-  // "image": "zydou/devcontainer-hugo:bullseye-0.108.0-extened"
-  "image": "debian:${templateOption:imageVariant}-slim",
+  // "image": "zydou/devcontainer-hugo:0.108.0"
+  "image": "debian:stable-slim",
   // "runArgs": ["--name=hugo-devcontainer"], // Docker CLI args
 
   // 👇 Features to add to the Dev Container. More info: https://containers.dev/implementors/features.
@@ -10,12 +10,11 @@
       "username": "hugo"
     },
     "ghcr.io/devcontainers/features/git:latest": {
-      "version": "os-provided",
-      "ppa": true
+      "version": "os-provided"
     },
     "ghcr.io/devcontainers/features/hugo:latest": {
       "version": "${templateOption:hugoVersion}",
-      "extended": "${templateOption:extended}"
+      "extended": true
     }
   },
   "overrideFeatureInstallOrder": [

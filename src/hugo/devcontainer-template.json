@@ -1,6 +1,6 @@
 {
   "id": "hugo",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "name": "Hugo",
   "description": "A Template to build websites using Hugo",
   "documentationURL": "https://github.com/zydou/devcontainer-templates/tree/main/src/hugo",
@@ -8,22 +8,11 @@
   "publisher": "zydou",
   "keywords": ["hugo"],
   "options": {
-    "imageVariant": {
-      "type": "string",
-      "description": "Debian version (use bullseye on local arm64/Apple Silicon):",
-      "proposals": ["bullseye", "buster"],
-      "default": "bullseye"
-    },
     "hugoVersion": {
       "type": "string",
       "description": "Hugo version",
       "proposals": ["latest", "0.107.0"],
       "default": "latest"
-    },
-    "extended": {
-      "type": "boolean",
-      "description": "Use Hugo extened version.",
-      "default": false
     }
   },
   "platforms": ["Any"]

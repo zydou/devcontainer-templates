@@ -15,11 +15,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        imageVariant:
-          ["stretch", "buster", "bullseye", "bookworm", "stable", "testing"]
-        hugoVersion: ["latest", "0.108.0", "0.107.0", "0.106.0", "0.105.0"]
-        extended: [true, false]
-    name: Build ${{ matrix.imageVariant }}-${{ matrix.hugoVersion }} (Extended:${{ matrix.extended }})
+        hugoVersion: ["latest", "0.108.0", "0.107.0"]
+
+    name: Build ${{ matrix.hugoVersion }}
     steps:
       - uses: actions/checkout@main
 
@@ -29,7 +27,7 @@ jobs:
           cp -v -r src/${{ env.NAME }} /tmp/
           cp -v .github/actions/utils/* /tmp/${{ env.NAME }}/
           cd /tmp/${{ env.NAME }}
-          python generate-template.py ${{ matrix.imageVariant }} ${{ matrix.hugoVersion }} ${{ matrix.extended }}
+          python generate-template.py ${{ matrix.hugoVersion }}
           echo "Content of devcontainer-template.json"
           cat devcontainer-template.json
           bash apply-template.sh
@@ -50,34 +48,16 @@ jobs:
           password: ${{ secrets.PAT }}
 
       - name: Build and push
-        if: ${{ matrix.extended == false }}
         env:
           DOCKER_BUILDKIT: 1
         run: |
           npm install -g @devcontainers/cli
           cd /tmp/${{ env.NAME }}
           devcontainer build --image-name ${{ env.NAME }} --workspace-folder .
-          docker tag ${{ env.NAME }} ${{ github.repository_owner }}/devcontainer-images:${{ env.NAME }}-${{ matrix.imageVariant }}-${{ matrix.hugoVersion }}
-          docker tag ${{ env.NAME }} ghcr.io/${{ github.repository_owner }}/devcontainer-images:${{ env.NAME }}-${{ matrix.imageVariant }}-${{ matrix.hugoVersion }}
-          docker tag ${{ env.NAME }} ${{ github.repository_owner }}/devcontainer-${{ env.NAME }}:${{ matrix.imageVariant }}-${{ matrix.hugoVersion }}
-          docker tag ${{ env.NAME }} ghcr.io/${{ github.repository_owner }}/devcontainer-${{ env.NAME }}:${{ matrix.imageVariant }}-${{ matrix.hugoVersion }}
-          docker push --all-tags ${{ github.repository_owner }}/devcontainer-images
-          docker push --all-tags ghcr.io/${{ github.repository_owner }}/devcontainer-images
-          docker push --all-tags ${{ github.repository_owner }}/devcontainer-${{ env.NAME }}
-          docker push --all-tags ghcr.io/${{ github.repository_owner }}/devcontainer-${{ env.NAME }}
-
-      - name: Build and push extended
-        if: ${{ matrix.extended }}
-        env:
-          DOCKER_BUILDKIT: 1
-        run: |
-          npm install -g @devcontainers/cli
-          cd /tmp/${{ env.NAME }}
-          devcontainer build --image-name ${{ env.NAME }} --workspace-folder .
-          docker tag ${{ env.NAME }} ${{ github.repository_owner }}/devcontainer-images:${{ env.NAME }}-${{ matrix.imageVariant }}-${{ matrix.hugoVersion }}-extened
-          docker tag ${{ env.NAME }} ghcr.io/${{ github.repository_owner }}/devcontainer-images:${{ env.NAME }}-${{ matrix.imageVariant }}-${{ matrix.hugoVersion }}-extened
-          docker tag ${{ env.NAME }} ${{ github.repository_owner }}/devcontainer-${{ env.NAME }}:${{ matrix.imageVariant }}-${{ matrix.hugoVersion }}-extened
-          docker tag ${{ env.NAME }} ghcr.io/${{ github.repository_owner }}/devcontainer-${{ env.NAME }}:${{ matrix.imageVariant }}-${{ matrix.hugoVersion }}-extened
+          docker tag ${{ env.NAME }} ${{ github.repository_owner }}/devcontainer-images:${{ env.NAME }}-${{ matrix.hugoVersion }}
+          docker tag ${{ env.NAME }} ghcr.io/${{ github.repository_owner }}/devcontainer-images:${{ env.NAME }}-${{ matrix.hugoVersion }}
+          docker tag ${{ env.NAME }} ${{ github.repository_owner }}/devcontainer-${{ env.NAME }}:${{ matrix.hugoVersion }}
+          docker tag ${{ env.NAME }} ghcr.io/${{ github.repository_owner }}/devcontainer-${{ env.NAME }}:${{ matrix.hugoVersion }}
           docker push --all-tags ${{ github.repository_owner }}/devcontainer-images
           docker push --all-tags ghcr.io/${{ github.repository_owner }}/devcontainer-images
           docker push --all-tags ${{ github.repository_owner }}/devcontainer-${{ env.NAME }}
