@@ -75,7 +75,7 @@ jobs:
       - name: Delete untagged
         uses: dylanratcliffe/delete-untagged-containers@main
         with:
-          package_name: devcontainer-images
+          package_name: devcontainer-${{ env.NAME }}
           token: ${{ secrets.PAT }}
           user: ${{ github.repository_owner }}
       - name: Docker Hub Description
