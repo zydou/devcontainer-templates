@@ -7,9 +7,7 @@ A Template to build websites using Hugo
 
 | Options Id | Description | Type | Default Value |
 |-----|-----|-----|-----|
-| imageVariant | Debian version (use bullseye on local arm64/Apple Silicon): | string | bullseye |
 | hugoVersion | Hugo version | string | latest |
-| extended | Use Hugo extened version. | boolean | false |
 
 
 
