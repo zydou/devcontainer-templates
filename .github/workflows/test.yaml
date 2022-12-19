@@ -61,10 +61,14 @@ jobs:
         id: push_image
         shell: bash
         run: |
+          docker tag ${{ matrix.templates }} ${{ github.repository_owner }}/devcontainer-${{ matrix.templates }}:latest
+          docker tag ${{ matrix.templates }} ghcr.io/${{ github.repository_owner }}/devcontainer-${{ matrix.templates }}:latest
           docker tag ${{ matrix.templates }} ${{ github.repository_owner }}/devcontainer-images:${{ matrix.templates }}
           docker tag ${{ matrix.templates }} ghcr.io/${{ github.repository_owner }}/devcontainer-images:${{ matrix.templates }}
           docker push ${{ github.repository_owner }}/devcontainer-images:${{ matrix.templates }}
           docker push ghcr.io/${{ github.repository_owner }}/devcontainer-images:${{ matrix.templates }}
+          docker push ${{ github.repository_owner }}/devcontainer-${{ matrix.templates }}:latest
+          docker push ghcr.io/${{ github.repository_owner }}/devcontainer-${{ matrix.templates }}:latest
 
       - name: Docker Hub Description
         uses: peter-evans/dockerhub-description@v2
