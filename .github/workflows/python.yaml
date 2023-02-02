@@ -15,14 +15,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        imageVariant: ["buster", "bullseye"]
         pythonVersion: ["3.11", "3.10", "3.9", "3.8", "3.7", "3.6"]
-        include:
-        - imageVariant: "stretch"
-          pythonVersion: "3.6"
-        - imageVariant: "stretch"
-          pythonVersion: "3.7"
-    name: Build ${{ matrix.pythonVersion }}-${{ matrix.imageVariant }}
+    name: Build ${{ matrix.pythonVersion }}
     steps:
       - uses: actions/checkout@main
       - name: Generate devcontainer-template.json
@@ -31,7 +25,7 @@ jobs:
           cp -v -r src/${{ env.NAME }} /tmp/
           cp -v .github/actions/utils/* /tmp/${{ env.NAME }}/
           cd /tmp/${{ env.NAME }}
-          python generate-template.py ${{ matrix.imageVariant }} ${{ matrix.pythonVersion }}
+          python generate-template.py ${{ matrix.pythonVersion }}
           echo "Content of devcontainer-template.json"
           cat devcontainer-template.json
           bash apply-template.sh
@@ -58,10 +52,10 @@ jobs:
           npm install -g @devcontainers/cli
           cd /tmp/${{ env.NAME }}
           devcontainer build --image-name ${{ env.NAME }} --workspace-folder .
-          docker tag ${{ env.NAME }} ${{ github.repository_owner }}/devcontainer-images:${{ env.NAME }}-${{ matrix.pythonVersion }}-${{ matrix.imageVariant }}
-          docker tag ${{ env.NAME }} ghcr.io/${{ github.repository_owner }}/devcontainer-images:${{ env.NAME }}-${{ matrix.pythonVersion }}-${{ matrix.imageVariant }}
-          docker tag ${{ env.NAME }} ${{ github.repository_owner }}/devcontainer-${{ env.NAME }}:${{ matrix.pythonVersion }}-${{ matrix.imageVariant }}
-          docker tag ${{ env.NAME }} ghcr.io/${{ github.repository_owner }}/devcontainer-${{ env.NAME }}:${{ matrix.pythonVersion }}-${{ matrix.imageVariant }}
+          docker tag ${{ env.NAME }} ${{ github.repository_owner }}/devcontainer-images:${{ env.NAME }}-${{ matrix.pythonVersion }}
+          docker tag ${{ env.NAME }} ghcr.io/${{ github.repository_owner }}/devcontainer-images:${{ env.NAME }}-${{ matrix.pythonVersion }}
+          docker tag ${{ env.NAME }} ${{ github.repository_owner }}/devcontainer-${{ env.NAME }}:${{ matrix.pythonVersion }}
+          docker tag ${{ env.NAME }} ghcr.io/${{ github.repository_owner }}/devcontainer-${{ env.NAME }}:${{ matrix.pythonVersion }}
           docker push --all-tags ${{ github.repository_owner }}/devcontainer-images
           docker push --all-tags ghcr.io/${{ github.repository_owner }}/devcontainer-images
           docker push --all-tags ${{ github.repository_owner }}/devcontainer-${{ env.NAME }}

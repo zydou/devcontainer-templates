@@ -1,7 +1,7 @@
 {
   "name": "python",
-  // "image": "zydou/devcontainer-python:3.10-bullseye",
-  "image": "python:${templateOption:pythonVersion}-slim-${templateOption:imageVariant}",
+  // "image": "zydou/devcontainer-python:3.10",
+  "image": "python:${templateOption:pythonVersion}-slim",
   // "runArgs": ["--name=python-devcontainer"], // Docker CLI args
   // 👇 Features to add to the Dev Container. More info: https://containers.dev/implementors/features.
   "features": {
