@@ -7,8 +7,7 @@ A Template to write TeX using texlive
 
 | Options Id | Description | Type | Default Value |
 |-----|-----|-----|-----|
-| version | texlive version | string | TL2021 |
-| scheme | historic[-doc][-src] schemes only work with TL{year} versions | string | historic-doc |
+| version | texlive version | string | latest |
 
 
 
