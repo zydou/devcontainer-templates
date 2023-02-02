@@ -15,8 +15,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        pythonVersion: ["3.11", "3.10", "3.9", "3.8", "3.7", "3.6"]
-    name: Build ${{ matrix.pythonVersion }}
+        pythonVersion: ["3", "3.11", "3.10", "3.9", "3.8", "3.7", "3.6", "3.5", "3.4"]
+        arch: ["amd64", "arm64"]
+    name: Build ${{ matrix.pythonVersion }} (${{ matrix.arch }})
     steps:
       - uses: actions/checkout@main
       - name: Generate devcontainer-template.json
@@ -31,7 +32,10 @@ jobs:
           bash apply-template.sh
           echo "Content of devcontainer.json"
           cat .devcontainer/devcontainer.json
-
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@master
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@master
       - name: Login to GitHub Container Registry
         uses: docker/login-action@master
         with:
@@ -45,35 +49,41 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.PAT }}
 
-      - name: Build and push
+      # Currently, this is a bug of devcontainer-cli to build multi-arch images with `features` enabled
+      # So we use a different tag for different arch as a temporary solution.
+      # See: https://github.com/devcontainers/ci/issues/191
+      - name: Build and push (amd64)
+        if: ${{ matrix.arch == 'amd64' }}
         env:
           DOCKER_BUILDKIT: 1
         run: |
           npm install -g @devcontainers/cli
           cd /tmp/${{ env.NAME }}
-          devcontainer build --image-name ${{ env.NAME }} --workspace-folder .
-          docker tag ${{ env.NAME }} ${{ github.repository_owner }}/devcontainer-images:${{ env.NAME }}-${{ matrix.pythonVersion }}
-          docker tag ${{ env.NAME }} ghcr.io/${{ github.repository_owner }}/devcontainer-images:${{ env.NAME }}-${{ matrix.pythonVersion }}
+          devcontainer build --image-name ${{ env.NAME }} --workspace-folder . --platform linux/${{ matrix.arch }}
           docker tag ${{ env.NAME }} ${{ github.repository_owner }}/devcontainer-${{ env.NAME }}:${{ matrix.pythonVersion }}
           docker tag ${{ env.NAME }} ghcr.io/${{ github.repository_owner }}/devcontainer-${{ env.NAME }}:${{ matrix.pythonVersion }}
-          docker push --all-tags ${{ github.repository_owner }}/devcontainer-images
-          docker push --all-tags ghcr.io/${{ github.repository_owner }}/devcontainer-images
           docker push --all-tags ${{ github.repository_owner }}/devcontainer-${{ env.NAME }}
           docker push --all-tags ghcr.io/${{ github.repository_owner }}/devcontainer-${{ env.NAME }}
 
+      - name: Build and push (${{ matrix.arch }})
+        if: ${{ matrix.arch != 'amd64' }}
+        env:
+          DOCKER_BUILDKIT: 1
+        run: |
+          npm install -g @devcontainers/cli
+          cd /tmp/${{ env.NAME }}
+          devcontainer build --image-name ${{ env.NAME }} --workspace-folder . --platform linux/${{ matrix.arch }}
+          docker tag ${{ env.NAME }} ${{ github.repository_owner }}/devcontainer-${{ env.NAME }}:${{ matrix.pythonVersion }}-${{ matrix.arch }}
+          docker tag ${{ env.NAME }} ghcr.io/${{ github.repository_owner }}/devcontainer-${{ env.NAME }}:${{ matrix.pythonVersion }}-${{ matrix.arch }}
+          docker push --all-tags ${{ github.repository_owner }}/devcontainer-${{ env.NAME }}
+          docker push --all-tags ghcr.io/${{ github.repository_owner }}/devcontainer-${{ env.NAME }}
   finishing:
     needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@main
-      - name: Delete untagged
-        uses: dylanratcliffe/delete-untagged-containers@main
-        with:
-          package_name: devcontainer-${{ env.NAME }}
-          token: ${{ secrets.PAT }}
-          user: ${{ github.repository_owner }}
       - name: Docker Hub Description
-        uses: peter-evans/dockerhub-description@v2
+        uses: peter-evans/dockerhub-description@main
         with:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.PAT }}

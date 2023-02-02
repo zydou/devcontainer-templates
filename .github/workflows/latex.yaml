@@ -16,7 +16,8 @@ jobs:
       fail-fast: false
       matrix:
         version: ["2022", "2021", "2020", "2019", "2018"]
-    name: Build ${{ matrix.version }}
+        arch: ["amd64", "arm64"]
+    name: Build ${{ matrix.version }} (${{ matrix.arch }})
     steps:
       - uses: actions/checkout@main
       - name: Generate devcontainer-template.json
@@ -31,33 +32,78 @@ jobs:
           bash apply-template.sh
           echo "Content of devcontainer.json"
           cat .devcontainer/devcontainer.json
-
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@master
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@master
       - name: Login to GitHub Container Registry
         uses: docker/login-action@master
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Login to DockerHub
         uses: docker/login-action@master
         with:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.PAT }}
 
-      - name: Build and push
+      - name: Build and push latest (amd64)
+        if: ${{ matrix.version == '2022' && matrix.arch == 'amd64' }}  # tag latest
         env:
           DOCKER_BUILDKIT: 1
         run: |
           npm install -g @devcontainers/cli
           cd /tmp/${{ env.NAME }}
-          devcontainer build --image-name ${{ env.NAME }} --workspace-folder .
-          docker tag ${{ env.NAME }} ${{ github.repository_owner }}/devcontainer-images:${{ env.NAME }}-${{ matrix.version }}
-          docker tag ${{ env.NAME }} ghcr.io/${{ github.repository_owner }}/devcontainer-images:${{ env.NAME }}-${{ matrix.version }}
+          devcontainer build --image-name ${{ env.NAME }} --workspace-folder . --platform linux/${{ matrix.arch }}
           docker tag ${{ env.NAME }} ${{ github.repository_owner }}/devcontainer-${{ env.NAME }}:${{ matrix.version }}
           docker tag ${{ env.NAME }} ghcr.io/${{ github.repository_owner }}/devcontainer-${{ env.NAME }}:${{ matrix.version }}
-          docker push --all-tags ${{ github.repository_owner }}/devcontainer-images
-          docker push --all-tags ghcr.io/${{ github.repository_owner }}/devcontainer-images
+          docker tag ${{ env.NAME }} ${{ github.repository_owner }}/devcontainer-${{ env.NAME }}:latest
+          docker tag ${{ env.NAME }} ghcr.io/${{ github.repository_owner }}/devcontainer-${{ env.NAME }}:latest
+          docker push --all-tags ${{ github.repository_owner }}/devcontainer-${{ env.NAME }}
+          docker push --all-tags ghcr.io/${{ github.repository_owner }}/devcontainer-${{ env.NAME }}
+
+      # Currently, this is a bug of devcontainer-cli to build multi-arch images with `features` enabled
+      # So we use a different tag for different arch as a temporary solution.
+      # See: https://github.com/devcontainers/ci/issues/191
+      - name: Build and push historic (amd64)
+        if: ${{ matrix.version != '2022' && matrix.arch == 'amd64' }}
+        env:
+          DOCKER_BUILDKIT: 1
+        run: |
+          npm install -g @devcontainers/cli
+          cd /tmp/${{ env.NAME }}
+          devcontainer build --image-name ${{ env.NAME }} --workspace-folder . --platform linux/${{ matrix.arch }}
+          docker tag ${{ env.NAME }} ${{ github.repository_owner }}/devcontainer-${{ env.NAME }}:${{ matrix.version }}
+          docker tag ${{ env.NAME }} ghcr.io/${{ github.repository_owner }}/devcontainer-${{ env.NAME }}:${{ matrix.version }}
+          docker push --all-tags ${{ github.repository_owner }}/devcontainer-${{ env.NAME }}
+          docker push --all-tags ghcr.io/${{ github.repository_owner }}/devcontainer-${{ env.NAME }}
+
+      - name: Build and push latest (${{ matrix.arch }})
+        if: ${{ matrix.version == '2022' && matrix.arch != 'amd64' }}  # tag latest
+        env:
+          DOCKER_BUILDKIT: 1
+        run: |
+          npm install -g @devcontainers/cli
+          cd /tmp/${{ env.NAME }}
+          devcontainer build --image-name ${{ env.NAME }} --workspace-folder . --platform linux/${{ matrix.arch }}
+          docker tag ${{ env.NAME }} ${{ github.repository_owner }}/devcontainer-${{ env.NAME }}:${{ matrix.version }}-${{ matrix.arch }}
+          docker tag ${{ env.NAME }} ghcr.io/${{ github.repository_owner }}/devcontainer-${{ env.NAME }}:${{ matrix.version }}-${{ matrix.arch }}
+          docker tag ${{ env.NAME }} ${{ github.repository_owner }}/devcontainer-${{ env.NAME }}:latest-${{ matrix.arch }}
+          docker tag ${{ env.NAME }} ghcr.io/${{ github.repository_owner }}/devcontainer-${{ env.NAME }}:latest-${{ matrix.arch }}
+          docker push --all-tags ${{ github.repository_owner }}/devcontainer-${{ env.NAME }}
+          docker push --all-tags ghcr.io/${{ github.repository_owner }}/devcontainer-${{ env.NAME }}
+
+      - name: Build and push historic (${{ matrix.arch }})
+        if: ${{ matrix.version != '2022' && matrix.arch != 'amd64' }}
+        env:
+          DOCKER_BUILDKIT: 1
+        run: |
+          npm install -g @devcontainers/cli
+          cd /tmp/${{ env.NAME }}
+          devcontainer build --image-name ${{ env.NAME }} --workspace-folder . --platform linux/${{ matrix.arch }}
+          docker tag ${{ env.NAME }} ${{ github.repository_owner }}/devcontainer-${{ env.NAME }}:${{ matrix.version }}-${{ matrix.arch }}
+          docker tag ${{ env.NAME }} ghcr.io/${{ github.repository_owner }}/devcontainer-${{ env.NAME }}:${{ matrix.version }}-${{ matrix.arch }}
           docker push --all-tags ${{ github.repository_owner }}/devcontainer-${{ env.NAME }}
           docker push --all-tags ghcr.io/${{ github.repository_owner }}/devcontainer-${{ env.NAME }}
 
@@ -66,14 +112,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@main
-      - name: Delete untagged
-        uses: dylanratcliffe/delete-untagged-containers@main
-        with:
-          package_name: devcontainer-${{ env.NAME }}
-          token: ${{ secrets.PAT }}
-          user: ${{ github.repository_owner }}
       - name: Docker Hub Description
-        uses: peter-evans/dockerhub-description@v2
+        uses: peter-evans/dockerhub-description@main
         with:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.PAT }}
