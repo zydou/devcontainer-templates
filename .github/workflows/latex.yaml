@@ -9,46 +9,29 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-latest:
+  build:
     runs-on: ubuntu-latest
     if: github.event_name != 'pull_request'
     strategy:
       fail-fast: false
       matrix:
-        version: ["latest"]
-        scheme: ["minimal", "basic", "small", "medium", "full"]
-        extra: ["none", "doc", "src", "doc-src"]
-    name: Build ${{ matrix.version }}-${{ matrix.scheme }} (Extra ${{ matrix.extra }})
+        version: ["2022", "2021", "2020", "2019", "2018"]
+    name: Build ${{ matrix.version }}
     steps:
       - uses: actions/checkout@main
-
-      - name: Generate devcontainer-template.json (without extra)
-        if: ${{ matrix.extra == 'none' }}
+      - name: Generate devcontainer-template.json
         shell: bash
         run: |
           cp -v -r src/${{ env.NAME }} /tmp/
           cp -v .github/actions/utils/* /tmp/${{ env.NAME }}/
           cd /tmp/${{ env.NAME }}
-          python generate-template.py ${{ matrix.version }} ${{ matrix.scheme }}
+          python generate-template.py ${{ matrix.version }}
           echo "Content of devcontainer-template.json"
           cat devcontainer-template.json
           bash apply-template.sh
           echo "Content of devcontainer.json"
           cat .devcontainer/devcontainer.json
-      - name: Generate devcontainer-template.json (with extra)
-        if: ${{ matrix.extra != 'none' }}
-        shell: bash
-        run: |
-          cp -v -r src/${{ env.NAME }} /tmp/
-          cp -v .github/actions/utils/* /tmp/${{ env.NAME }}/
-          cd /tmp/${{ env.NAME }}
-          python generate-template.py ${{ matrix.version }} ${{ matrix.scheme }}-${{ matrix.extra }}
 
-          echo "Content of devcontainer-template.json"
-          cat devcontainer-template.json
-          bash apply-template.sh
-          echo "Content of devcontainer.json"
-          cat .devcontainer/devcontainer.json
       - name: Login to GitHub Container Registry
         uses: docker/login-action@master
         with:
@@ -62,128 +45,24 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.PAT }}
 
-      - name: Build and push extended
-        if: ${{ matrix.extra != 'none' }}
-        env:
-          DOCKER_BUILDKIT: 1
-        run: |
-          npm install -g @devcontainers/cli
-          cd /tmp/${{ env.NAME }}
-          devcontainer build --image-name ${{ env.NAME }} --workspace-folder .
-          docker tag ${{ env.NAME }} ${{ github.repository_owner }}/devcontainer-images:${{ env.NAME }}-${{ matrix.version }}-${{ matrix.scheme }}-${{ matrix.extra}}
-          docker tag ${{ env.NAME }} ghcr.io/${{ github.repository_owner }}/devcontainer-images:${{ env.NAME }}-${{ matrix.version }}-${{ matrix.scheme }}-${{ matrix.extra}}
-          docker tag ${{ env.NAME }} ${{ github.repository_owner }}/devcontainer-${{ env.NAME }}:${{ matrix.version }}-${{ matrix.scheme }}-${{ matrix.extra}}
-          docker tag ${{ env.NAME }} ghcr.io/${{ github.repository_owner }}/devcontainer-${{ env.NAME }}:${{ matrix.version }}-${{ matrix.scheme }}-${{ matrix.extra}}
-          docker push --all-tags ${{ github.repository_owner }}/devcontainer-images
-          docker push --all-tags ghcr.io/${{ github.repository_owner }}/devcontainer-images
-          docker push --all-tags ${{ github.repository_owner }}/devcontainer-${{ env.NAME }}
-          docker push --all-tags ghcr.io/${{ github.repository_owner }}/devcontainer-${{ env.NAME }}
-
       - name: Build and push
-        if: ${{ matrix.extra == 'none' }}
         env:
           DOCKER_BUILDKIT: 1
         run: |
           npm install -g @devcontainers/cli
           cd /tmp/${{ env.NAME }}
           devcontainer build --image-name ${{ env.NAME }} --workspace-folder .
-          docker tag ${{ env.NAME }} ${{ github.repository_owner }}/devcontainer-images:${{ env.NAME }}-${{ matrix.version }}-${{ matrix.scheme }}
-          docker tag ${{ env.NAME }} ghcr.io/${{ github.repository_owner }}/devcontainer-images:${{ env.NAME }}-${{ matrix.version }}-${{ matrix.scheme }}
-          docker tag ${{ env.NAME }} ${{ github.repository_owner }}/devcontainer-${{ env.NAME }}:${{ matrix.version }}-${{ matrix.scheme }}
-          docker tag ${{ env.NAME }} ghcr.io/${{ github.repository_owner }}/devcontainer-${{ env.NAME }}:${{ matrix.version }}-${{ matrix.scheme }}
-          docker push --all-tags ${{ github.repository_owner }}/devcontainer-images
-          docker push --all-tags ghcr.io/${{ github.repository_owner }}/devcontainer-images
-          docker push --all-tags ${{ github.repository_owner }}/devcontainer-${{ env.NAME }}
-          docker push --all-tags ghcr.io/${{ github.repository_owner }}/devcontainer-${{ env.NAME }}
-  build-historic:
-    runs-on: ubuntu-latest
-    if: github.event_name != 'pull_request'
-    strategy:
-      fail-fast: false
-      matrix:
-        version: ["TL2021", "TL2020", "TL2019", "TL2018"]
-        scheme: ["historic"]
-        extra: ["none", "doc", "src", "doc-src"]
-    name: Build ${{ matrix.version }}-${{ matrix.scheme }} (Extra ${{ matrix.extra }})
-    steps:
-      - uses: actions/checkout@main
-
-      - name: Generate devcontainer-template.json (without extra)
-        if: ${{ matrix.extra == 'none' }}
-        shell: bash
-        run: |
-          cp -v -r src/${{ env.NAME }} /tmp/
-          cp -v .github/actions/utils/* /tmp/${{ env.NAME }}/
-          cd /tmp/${{ env.NAME }}
-          python generate-template.py ${{ matrix.version }} ${{ matrix.scheme }}
-          echo "Content of devcontainer-template.json"
-          cat devcontainer-template.json
-          bash apply-template.sh
-          echo "Content of devcontainer.json"
-          cat .devcontainer/devcontainer.json
-      - name: Generate devcontainer-template.json (with extra)
-        if: ${{ matrix.extra != 'none' }}
-        shell: bash
-        run: |
-          cp -v -r src/${{ env.NAME }} /tmp/
-          cp -v .github/actions/utils/* /tmp/${{ env.NAME }}/
-          cd /tmp/${{ env.NAME }}
-          python generate-template.py ${{ matrix.version }} ${{ matrix.scheme }}-${{ matrix.extra }}
-
-          echo "Content of devcontainer-template.json"
-          cat devcontainer-template.json
-          bash apply-template.sh
-          echo "Content of devcontainer.json"
-          cat .devcontainer/devcontainer.json
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@master
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Login to DockerHub
-        uses: docker/login-action@master
-        with:
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.PAT }}
-
-      - name: Build and push extended
-        if: ${{ matrix.extra != 'none' }}
-        env:
-          DOCKER_BUILDKIT: 1
-        run: |
-          npm install -g @devcontainers/cli
-          cd /tmp/${{ env.NAME }}
-          devcontainer build --image-name ${{ env.NAME }} --workspace-folder .
-          docker tag ${{ env.NAME }} ${{ github.repository_owner }}/devcontainer-images:${{ env.NAME }}-${{ matrix.version }}-${{ matrix.scheme }}-${{ matrix.extra}}
-          docker tag ${{ env.NAME }} ghcr.io/${{ github.repository_owner }}/devcontainer-images:${{ env.NAME }}-${{ matrix.version }}-${{ matrix.scheme }}-${{ matrix.extra}}
-          docker tag ${{ env.NAME }} ${{ github.repository_owner }}/devcontainer-${{ env.NAME }}:${{ matrix.version }}-${{ matrix.scheme }}-${{ matrix.extra}}
-          docker tag ${{ env.NAME }} ghcr.io/${{ github.repository_owner }}/devcontainer-${{ env.NAME }}:${{ matrix.version }}-${{ matrix.scheme }}-${{ matrix.extra}}
-          docker push --all-tags ${{ github.repository_owner }}/devcontainer-images
-          docker push --all-tags ghcr.io/${{ github.repository_owner }}/devcontainer-images
-          docker push --all-tags ${{ github.repository_owner }}/devcontainer-${{ env.NAME }}
-          docker push --all-tags ghcr.io/${{ github.repository_owner }}/devcontainer-${{ env.NAME }}
-
-      - name: Build and push
-        if: ${{ matrix.extra == 'none' }}
-        env:
-          DOCKER_BUILDKIT: 1
-        run: |
-          npm install -g @devcontainers/cli
-          cd /tmp/${{ env.NAME }}
-          devcontainer build --image-name ${{ env.NAME }} --workspace-folder .
-          docker tag ${{ env.NAME }} ${{ github.repository_owner }}/devcontainer-images:${{ env.NAME }}-${{ matrix.version }}-${{ matrix.scheme }}
-          docker tag ${{ env.NAME }} ghcr.io/${{ github.repository_owner }}/devcontainer-images:${{ env.NAME }}-${{ matrix.version }}-${{ matrix.scheme }}
-          docker tag ${{ env.NAME }} ${{ github.repository_owner }}/devcontainer-${{ env.NAME }}:${{ matrix.version }}-${{ matrix.scheme }}
-          docker tag ${{ env.NAME }} ghcr.io/${{ github.repository_owner }}/devcontainer-${{ env.NAME }}:${{ matrix.version }}-${{ matrix.scheme }}
+          docker tag ${{ env.NAME }} ${{ github.repository_owner }}/devcontainer-images:${{ env.NAME }}-${{ matrix.version }}
+          docker tag ${{ env.NAME }} ghcr.io/${{ github.repository_owner }}/devcontainer-images:${{ env.NAME }}-${{ matrix.version }}
+          docker tag ${{ env.NAME }} ${{ github.repository_owner }}/devcontainer-${{ env.NAME }}:${{ matrix.version }}
+          docker tag ${{ env.NAME }} ghcr.io/${{ github.repository_owner }}/devcontainer-${{ env.NAME }}:${{ matrix.version }}
           docker push --all-tags ${{ github.repository_owner }}/devcontainer-images
           docker push --all-tags ghcr.io/${{ github.repository_owner }}/devcontainer-images
           docker push --all-tags ${{ github.repository_owner }}/devcontainer-${{ env.NAME }}
           docker push --all-tags ghcr.io/${{ github.repository_owner }}/devcontainer-${{ env.NAME }}
 
   finishing:
-    needs: [build-latest, build-historic]
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@main
