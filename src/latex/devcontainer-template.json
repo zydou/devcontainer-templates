@@ -1,6 +1,6 @@
 {
   "id": "latex",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "name": "latex",
   "description": "A Template to write TeX using texlive",
   "documentationURL": "https://github.com/zydou/devcontainer-templates/tree/main/src/latex",
@@ -11,7 +11,7 @@
     "version": {
       "type": "string",
       "description": "texlive version",
-      "proposals": ["latest", "2022", "2021", "2020"],
+      "proposals": ["latest", "latest-doc", "2022", "2022-doc", "2021"],
       "default": "latest"
     }
   },
